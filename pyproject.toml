@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "build-next"
+version = "0.1.0"
+description = "What to build next — ranked as demand (from live GitHub Trending) minus supply (repo counts + skill-registry vacancy). No LLM, zero deps."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "David Wei" }]
+keywords = ["project-ideas", "what-to-build", "github-trending", "gap-analysis", "niche-finder"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+]
+dependencies = []
+
+[project.scripts]
+buildnext = "buildnext.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["buildnext*"]
