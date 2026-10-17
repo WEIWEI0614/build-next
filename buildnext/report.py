@@ -26,11 +26,13 @@ def terminal(data: dict, lang: str = "zh") -> str:
     out = [f"\n  {t('t.title', lang)} · {data['since']}",
            f"  {t('t.scanned', lang, repos=data['repos_scanned'], topics=data['topics_scanned'])}\n",
            f"  {_pad(t('t.topic', lang), 28)}{t('t.score', lang):>8}{t('t.demand', lang):>8}"
-           f"{t('t.repos', lang):>8}  {t('t.registry', lang)}"]
+           f"{t('t.repos', lang):>8}{t('t.leader', lang):>10}  {t('t.registry', lang)}"]
     for s in data["opportunities"]:
+        lead = s.get("top_stars") or 0
         out.append(
             f"  {_pad(s['topic'], 28)}{s['score']:>8}{s['best']:>8}"
-            f"{(s.get('topic_repos') if s.get('topic_repos') is not None else '—'):>8}  "
+            f"{(s.get('topic_repos') if s.get('topic_repos') is not None else '—'):>8}"
+            f"{('★' + str(lead)) if lead else '—':>9}  "
             f"{_reg_label(s, lang)}   ← {s['repos'][0]}")
     if not data["opportunities"]:
         out.append(f"  {t('t.none', lang)}")
@@ -52,7 +54,9 @@ def markdown_brief(data: dict, lang: str = "zh") -> str:
               f"({t('t.trigger', lang)} `{s['repos'][0]}`, {s['best_stars']} stars, "
               f"{t('t.buckets', lang)} {', '.join(s['best_buckets'])})",
               f"- {t('t.repos', lang)}: **{s.get('topic_repos')}** "
-              f"(supply percentile {s['supply_percentile']})",
+              f"(supply percentile {s['supply_percentile']}, occupancy {s.get('occupancy')})",
+              f"- {t('t.leader', lang)}: `{s.get('top_repo')}` ★{(s.get('top_stars') or 0):,}"
+              " — if this is a mature project, the niche is taken regardless of the count",
               f"- {t('t.registry', lang)}: {_reg_label(s, lang)}"
               + (f" — `{reg.get('top_slug')}`" if reg.get("top_slug") else ""),
               f"- triggers: {', '.join('`' + r + '`' for r in s['repos'][:4])}", ""]
@@ -77,6 +81,7 @@ def html_report(data: dict, lang: str = "zh", alt_href: str | None = None,
   <div class="meta">
     <span>{t('t.demand', lang)} <b>{s['best']}</b></span>
     <span>{t('t.repos', lang)} <b>{s.get('topic_repos')}</b></span>
+    <span>{t('t.leader', lang)} <b>★{(s.get('top_stars') or 0):,}</b></span>
     {badge}
   </div>
   <div class="trig">← {html.escape(s['repos'][0])} · {s['best_stars']} stars · {html.escape(', '.join(s['best_buckets']))}</div>

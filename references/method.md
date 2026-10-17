@@ -70,6 +70,46 @@ topic is fatal regardless of registry state; a vacant registry is a bonus, not a
 3. **Cap on topic lookups** (`--max-topics`). Each lookup is a search request; GitHub allows
    30/minute authenticated. The tool sleeps 4s every 8 requests.
 
+## Dominance — the correction that mattered most
+
+Counting repositories alone produced a false positive on the first real run:
+
+```
+agent-ide    score 63.5   28 repos   registry vacant   ← stablyai/orca
+```
+
+`agent-ide` has only 28 repositories, nothing in the registry matched it, and the triggering
+repo was trending hard. It looked like the best opportunity of the day.
+
+Verification (the mandatory step) showed the leader of that topic is **`stablyai/orca` with
+95,009 stars — the same repository that generated the topic.** Twenty-eight repositories
+containing a 95k-star giant is not a vacancy; it is an occupied category with an underused tag.
+
+So dominance entered the formula:
+
+```
+occupancy = min(1, log10(top_stars_in_topic + 1) / 4)     # 10k stars → 1.0
+supply_gap = (percentile blend) × (1 − 0.75 × occupancy)
+```
+
+Effect on that run: `agent-ide` 63.5 → 33.8. Every candidate collapsed into the 0–34 band, which
+is the honest answer — every topic attached to a trending repository is, by construction,
+occupied by that repository.
+
+## The structural limitation
+
+Because topics are harvested *from the trending repos themselves*, this method is biased toward
+finding spaces the trending repo already owns. That is the opposite of what the user wants.
+
+Real gaps sit **adjacent**, not identical: a 47k-star OCR project means document parsing is
+solved, which says nothing about whether anyone has built the editable table-review step after
+parsing. That step has no topic tag and will never appear in the scan.
+
+The tool measures where attention is. Inferring what is missing *next to* that attention is a
+language task, and `SKILL.md` assigns it explicitly to the agent rather than faking it with a
+heuristic. Consequence for callers: **do not ship the ranked list as the answer.** The list is
+the input to a reasoning step, not its output.
+
 ## Known failure modes
 
 | Failure | Symptom | Mitigation |

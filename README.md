@@ -34,23 +34,38 @@ opportunity ≈ demand (attention, measured from trending)
 A real run, 2026-10-17:
 
 ```
-topic                            score  demand   repos  registry
-agent-ide                        63.5  0.6833      28  vacant   ← stablyai/orca
-ocr-python                       33.9  0.5062     621  vacant   ← hiroi-sora/Umi-OCR
-data-collection                  28.1  0.4969    1873  vacant   ← Evil0ctal/Douyin_TikTok...
-asyncio                           8.9  0.4969    7662  has hits ← Evil0ctal/Douyin_TikTok...
-ai-agents                         0.0  0.6833  120829  has hits ← stablyai/orca
+topic                            score  demand   repos    leader  registry
+agent-ide                        33.8  0.6833      28   ★95009   vacant
+ocr-python                       21.9  0.5062     621   ★47983   vacant
+data-collection                  20.3  0.4969    1873   ★44700   vacant
+asyncio                           2.2  0.4969    7661  ★103166   has hits
+ai-agents                         0.0  0.6833  120832  ★302066   has hits
 ```
 
-Read three columns, not one:
+Four columns, and you need all four:
 
 - **score** — sort key only. Never a verdict.
-- **repos** — the absolute supply. 28 and 120,829 are different universes.
-- **registry** — `vacant` means nothing in the skill registry semantically matches that phrase.
+- **repos** — absolute supply.
+- **leader** — stars of the biggest repo in that topic. **This is the column that saves you.**
+- **registry** — `vacant` means nothing in the skill registry semantically matches the phrase.
 
-Note the last row: `ai-agents` has the **same demand** as `agent-ide` (both triggered by the
-same trending repo) and scores zero, because 120k repositories already carry it. That gap is
-the whole product.
+The last row is the product: `ai-agents` has the **same demand** as `agent-ide` (both triggered by
+the same trending repo) and scores zero, because 120k repositories carry it.
+
+And the first row is the lesson: `agent-ide` has only **28 repositories**, looks vacant, and its
+leader has **95,009 stars — the very repo that put it on the trending board.** Counting
+repositories without counting their size recommended building an agent IDE against a 95k-star
+incumbent. The dominance term exists because that happened, not because it was elegant.
+
+## The limitation that matters
+
+Every topic here was harvested from a trending repo, so by construction it is a space that repo
+already occupies. That is why nothing scored above 34. **Real gaps live adjacent, not identical:**
+a 47k-star OCR project says document parsing is solved — it says nothing about the editable
+table-review step after parsing, which has no topic tag and never appears in a scan.
+
+The tool measures attention. Inferring what is missing *next to* it is a language task, and this
+project refuses to fake it with a heuristic.
 
 ## Two signals, two distinct ways to be wrong
 

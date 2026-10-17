@@ -11,6 +11,7 @@ MSG: dict[str, dict[str, str]] = {
     "t.repos": {"zh": "仓库数", "en": "repos"},
     "t.registry": {"zh": "注册表", "en": "registry"},
     "t.trigger": {"zh": "触发来源", "en": "triggered by"},
+    "t.leader": {"zh": "领先者", "en": "leader"},
     "t.buckets": {"zh": "上榜分桶", "en": "buckets"},
     "t.none": {"zh": "本次没有足够强的信号。", "en": "No signal strong enough this run."},
     "t.scanned": {"zh": "扫描了 {repos} 个上榜仓库，评估 {topics} 个主题词", "en": "Scanned {repos} trending repos, evaluated {topics} topics"},

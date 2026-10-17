@@ -11,6 +11,7 @@ ranks *where to look*, and the report says so.
 """
 from __future__ import annotations
 
+import math
 import time
 
 from . import api
@@ -120,10 +121,13 @@ def scan(limit_per_bucket: int = 12, max_topics: int = 18, check_registry: bool 
     for i, s in enumerate(picked):
         _pace(i)
         try:
-            s["topic_repos"] = api.search_count(f"topic:{s['topic']}")
+            st = api.topic_stats(s["topic"])
         except RuntimeError:
-            s["topic_repos"] = None
-        counts.append(s["topic_repos"] if s["topic_repos"] is not None else 10 ** 6)
+            st = {"count": None, "top_stars": 0, "top_repo": None}
+        s["topic_repos"] = st["count"]
+        s["top_stars"] = st["top_stars"]
+        s["top_repo"] = st["top_repo"]
+        counts.append(st["count"] if st["count"] is not None else 10 ** 6)
 
     pct = _percentile_rank(counts)
     for s, p in zip(picked, pct):
@@ -134,7 +138,12 @@ def scan(limit_per_bucket: int = 12, max_topics: int = 18, check_registry: bool 
         n = s.get("topic_repos")
         absolute = 1 / (1 + (n if n else 10 ** 6) / 100)
         s["supply_absolute"] = round(absolute, 3)
-        s["supply_gap"] = round(0.5 * (1 - p) + 0.5 * absolute, 3)
+        # Dominance: a 28-repo topic whose leader has 95k stars is NOT a vacancy. Counting
+        # repositories alone ranked exactly that as the best opportunity on 2026-10-17, because
+        # the leader was the trending repo that produced the topic in the first place.
+        occupancy = min(1.0, math.log10((s.get("top_stars") or 0) + 1) / 4)
+        s["occupancy"] = round(occupancy, 3)
+        s["supply_gap"] = round((0.5 * (1 - p) + 0.5 * absolute) * (1 - 0.75 * occupancy), 3)
 
     if check_registry:
         for i, s in enumerate(picked):

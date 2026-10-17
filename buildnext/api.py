@@ -72,6 +72,23 @@ def search_count(query: str) -> int:
     return int(d.get("total_count") or 0)
 
 
+def topic_stats(topic: str) -> dict:
+    """Repository count AND dominance in one call.
+
+    A topic with 28 repositories is not a vacancy if one of them has 95k stars — that is an
+    occupied niche with an underused tag. Sorting by stars gets both facts for the same quota.
+    """
+    q = urllib.parse.quote(f"topic:{topic}")
+    d = get_json(f"https://api.github.com/search/repositories?q={q}&sort=stars&per_page=5")
+    items = d.get("items") or []
+    top = items[0] if items else None
+    return {
+        "count": int(d.get("total_count") or 0),
+        "top_stars": int(top.get("stargazers_count") or 0) if top else 0,
+        "top_repo": top.get("full_name") if top else None,
+    }
+
+
 # ---------------------------------------------------------------- GitHub: trending
 
 
